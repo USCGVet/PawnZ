@@ -3,7 +3,7 @@ import { Web3Context } from '../context/Web3Context';
 import { ThemeContext } from '../context/ThemeContext';
 
 const LandingPage = () => {
-  const { connectWallet, account } = useContext(Web3Context);
+  const { connectWallet, account, isConnecting, isWalletAvailable, error } = useContext(Web3Context);
   const { darkMode, toggleDarkMode } = useContext(ThemeContext);
 
   const themeStyles = {
@@ -55,9 +55,27 @@ const LandingPage = () => {
           {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
         </button>
         {!account ? (
-          <button style={themeStyles.connectButton} onClick={connectWallet}>
-            Connect Wallet (For Demo Only)
-          </button>
+          <div>
+            <button 
+              style={{
+                ...themeStyles.connectButton,
+                opacity: isWalletAvailable ? 1 : 0.6,
+                cursor: isConnecting ? 'wait' : isWalletAvailable ? 'pointer' : 'not-allowed'
+              }} 
+              onClick={connectWallet}
+              disabled={isConnecting || !isWalletAvailable}
+            >
+              {isConnecting ? 'Connecting...' : 
+               isWalletAvailable ? 'Connect Wallet (For Demo Only)' : 
+               'Wallet Not Available'}
+            </button>
+            {error && <p style={{color: 'red', marginTop: '10px'}}>{error}</p>}
+            {!isWalletAvailable && 
+              <p style={{color: 'orange', marginTop: '10px'}}>
+                MetaMask or another Web3 wallet is required.
+              </p>
+            }
+          </div>
         ) : (
           <p style={styles.accountInfo}>Connected: {account}</p>
         )}
